@@ -4,10 +4,12 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
+import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -40,18 +42,50 @@ class MainActivity : ComponentActivity() {
 data class Tarefa(val texto: String, var concluida: Boolean = false)
 
 // Composable que representa a tela principal da lista de verificação
+
 @Composable
 fun TelaChecklist() {
     // Mantém o estado das tarefas usando mutableStateOf
     var tarefas by remember { mutableStateOf(listaDeTarefas()) }
 
-    // Chama o composable Checklist para exibir a lista de tarefas
-    Checklist(tarefas = tarefas) { index, concluida ->
-        tarefas = tarefas.mapIndexed { idx, tarefa ->
-            if (idx == index) {
-                tarefa.copy(concluida = concluida)
-            } else {
-                tarefa
+    // Mantém o estado do texto da nova tarefa
+    var novaTarefaTexto by remember { mutableStateOf("") }
+
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        // TextField para adicionar uma nova tarefa
+        TextField(
+            value = novaTarefaTexto,
+            onValueChange = { novaTarefaTexto = it },
+            label = { Text("Nova Tarefa") },
+            modifier = Modifier.padding(16.dp)
+        )
+
+        // Botão para adicionar a nova tarefa à lista
+        Button(
+            onClick = {
+                if (novaTarefaTexto.isNotBlank()) {
+                    tarefas = tarefas.toMutableList().apply {
+                        add(Tarefa(novaTarefaTexto))
+                    }
+                    novaTarefaTexto = ""
+                }
+            },
+            modifier = Modifier.padding(16.dp)
+        ) {
+            Text("Adicionar Tarefa")
+        }
+
+        // Chama o composable Checklist para exibir a lista de tarefas
+        Checklist(tarefas = tarefas) { index, concluida ->
+            tarefas = tarefas.mapIndexed { idx, tarefa ->
+                if (idx == index) {
+                    tarefa.copy(concluida = concluida)
+                } else {
+                    tarefa
+                }
             }
         }
     }
