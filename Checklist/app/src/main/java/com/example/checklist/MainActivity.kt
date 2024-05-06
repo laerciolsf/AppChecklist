@@ -41,8 +41,8 @@ class MainActivity : ComponentActivity() {
 // Classe de dados que representa uma tarefa na lista de verificação
 data class Tarefa(val texto: String, var concluida: Boolean = false)
 
-// Composable que representa a tela principal da lista de verificação
 
+// Composable que representa a tela principal da lista de verificação
 @Composable
 fun TelaChecklist() {
     // Mantém o estado das tarefas usando mutableStateOf
@@ -79,21 +79,34 @@ fun TelaChecklist() {
         }
 
         // Chama o composable Checklist para exibir a lista de tarefas
-        Checklist(tarefas = tarefas) { index, concluida ->
-            tarefas = tarefas.mapIndexed { idx, tarefa ->
-                if (idx == index) {
-                    tarefa.copy(concluida = concluida)
-                } else {
-                    tarefa
+        Checklist(
+            tarefas = tarefas,
+            onTarefaConcluidaChange = { index, concluida ->
+                tarefas = tarefas.mapIndexed { idx, tarefa ->
+                    if (idx == index) {
+                        tarefa.copy(concluida = concluida)
+                    } else {
+                        tarefa
+                    }
+                }
+            },
+            onTarefaExcluir = { index ->
+                tarefas = tarefas.toMutableList().apply {
+                    removeAt(index)
                 }
             }
-        }
+        )
     }
 }
 
+
 // Composable que exibe a lista de tarefas
 @Composable
-fun Checklist(tarefas: List<Tarefa>, onTarefaConcluidaChange: (Int, Boolean) -> Unit) {
+fun Checklist(
+    tarefas: List<Tarefa>,
+    onTarefaConcluidaChange: (Int, Boolean) -> Unit,
+    onTarefaExcluir: (Int) -> Unit // Adicionamos um novo parâmetro para a função de exclusão da tarefa
+) {
     // Organiza as tarefas verticalmente usando Column
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -101,8 +114,11 @@ fun Checklist(tarefas: List<Tarefa>, onTarefaConcluidaChange: (Int, Boolean) -> 
     ) {
         // Para cada tarefa na lista
         tarefas.forEachIndexed { index, tarefa ->
-            // Cria uma linha que contém um Checkbox e um Text
-            Row(verticalAlignment = Alignment.CenterVertically) {
+            // Cria uma linha que contém um Checkbox, um Text e um Button
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.padding(vertical = 8.dp)
+            ) {
                 // Checkbox para marcar a tarefa como concluída
                 Checkbox(
                     checked = tarefa.concluida,
@@ -112,6 +128,15 @@ fun Checklist(tarefas: List<Tarefa>, onTarefaConcluidaChange: (Int, Boolean) -> 
                 Spacer(modifier = Modifier.width(8.dp))
                 // Texto da descrição da tarefa
                 Text(text = tarefa.texto)
+                // Espaçamento entre o Text e o Button
+                Spacer(modifier = Modifier.weight(1f))
+                // Botão de exclusão da tarefa
+                Button(
+                    onClick = { onTarefaExcluir(index) },
+                    modifier = Modifier.width(100.dp)
+                ) {
+                    Text(text = "Excluir")
+                }
             }
         }
     }
