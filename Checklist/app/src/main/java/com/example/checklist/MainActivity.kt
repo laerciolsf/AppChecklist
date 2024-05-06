@@ -1,9 +1,18 @@
-package com.example.checklist // Pacote onde a classe MainActivity está localizada
+package com.example.checklist
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
@@ -17,20 +26,15 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.checklist.ui.theme.ChecklistTheme
 
-// Classe principal da atividade, ponto de entrada do aplicativo Android
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // Define a IU usando Jetpack Compose
         setContent {
-            // Define o tema global do aplicativo
             ChecklistTheme {
-                // Superfície que representa a tela onde o conteúdo é exibido
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    // Chama o composable TelaChecklist para exibir a lista de tarefas
                     TelaChecklist()
                 }
             }
@@ -38,11 +42,8 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-// Classe de dados que representa uma tarefa na lista de verificação
 data class Tarefa(val texto: String, var concluida: Boolean = false)
 
-
-// Composable que exibe a lista de tarefas
 @Composable
 fun Checklist(
     tarefas: List<Tarefa>,
@@ -50,15 +51,21 @@ fun Checklist(
     onTarefaExcluir: (Int) -> Unit,
     onTarefaEditar: (Int, String) -> Unit
 ) {
-    Column(
+    // Substituído Column por LazyColumn para renderização eficiente
+    LazyColumn(
         modifier = Modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally
+        contentPadding = PaddingValues(vertical = 8.dp)
     ) {
-        tarefas.forEachIndexed { index, tarefa ->
+        // Usando items para iterar sobre a lista de tarefas
+        items(tarefas.size) { index ->
+            val tarefa = tarefas[index]
             var editandoTarefaIndex by remember { mutableStateOf(-1) }
+
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.padding(vertical = 8.dp)
+                modifier = Modifier
+                    .padding(vertical = 8.dp, horizontal = 16.dp)
+                    .fillMaxWidth()
             ) {
                 Checkbox(
                     checked = tarefa.concluida,
@@ -90,7 +97,7 @@ fun Checklist(
                     }
                     Button(
                         onClick = { onTarefaExcluir(index) },
-                        enabled = editandoTarefaIndex == -1 // Desabilita o botão "Remover" quando estiver editando
+                        enabled = editandoTarefaIndex == -1
                     ) {
                         Text("Excluir")
                     }
@@ -100,12 +107,11 @@ fun Checklist(
     }
 }
 
-// Composable que representa a tela principal da lista de verificação
 @Composable
 fun TelaChecklist() {
     var tarefas by remember { mutableStateOf(listaDeTarefas()) }
     var novaTarefaTexto by remember { mutableStateOf("") }
-    var editando by remember { mutableStateOf(false) } // Variável de estado para controlar se está editando
+    var editando by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -116,12 +122,12 @@ fun TelaChecklist() {
             onValueChange = { novaTarefaTexto = it },
             label = { Text("Nova Tarefa") },
             modifier = Modifier.padding(16.dp),
-            enabled = !editando // Desabilita o TextField quando estiver editando
+            enabled = !editando
         )
 
         Button(
             onClick = {
-                if (!editando && novaTarefaTexto.isNotBlank()) { // Verifica se não está editando e se há texto na nova tarefa
+                if (!editando && novaTarefaTexto.isNotBlank()) {
                     tarefas = tarefas.toMutableList().apply {
                         add(Tarefa(novaTarefaTexto))
                     }
@@ -129,7 +135,7 @@ fun TelaChecklist() {
                 }
             },
             modifier = Modifier.padding(16.dp),
-            enabled = !editando // Desabilita o botão "Nova Tarefa" quando estiver editando
+            enabled = !editando
         ) {
             Text("Adicionar Tarefa")
         }
@@ -159,8 +165,6 @@ fun TelaChecklist() {
     }
 }
 
-
-// Função que retorna uma lista de tarefas predefinidas
 fun listaDeTarefas(): List<Tarefa> {
     return listOf(
         Tarefa("Comprar leite"),
@@ -169,10 +173,8 @@ fun listaDeTarefas(): List<Tarefa> {
     )
 }
 
-// Composable usado para visualização no Android Studio
 @Preview(showBackground = true)
 @Composable
 fun PreviaTelaChecklist() {
-    // Mostra como a tela da lista de verificação será renderizada
     TelaChecklist()
 }
