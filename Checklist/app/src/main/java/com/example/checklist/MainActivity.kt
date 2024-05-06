@@ -88,12 +88,12 @@ fun Checklist(
                     ) {
                         Text("Editar")
                     }
-                }
-                Spacer(modifier = Modifier.width(8.dp))
-                Button(
-                    onClick = { onTarefaExcluir(index) }
-                ) {
-                    Text("Excluir")
+                    Button(
+                        onClick = { onTarefaExcluir(index) },
+                        enabled = editandoTarefaIndex == -1 // Desabilita o botão "Remover" quando estiver editando
+                    ) {
+                        Text("Excluir")
+                    }
                 }
             }
         }
@@ -105,6 +105,7 @@ fun Checklist(
 fun TelaChecklist() {
     var tarefas by remember { mutableStateOf(listaDeTarefas()) }
     var novaTarefaTexto by remember { mutableStateOf("") }
+    var editando by remember { mutableStateOf(false) } // Variável de estado para controlar se está editando
 
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -114,19 +115,21 @@ fun TelaChecklist() {
             value = novaTarefaTexto,
             onValueChange = { novaTarefaTexto = it },
             label = { Text("Nova Tarefa") },
-            modifier = Modifier.padding(16.dp)
+            modifier = Modifier.padding(16.dp),
+            enabled = !editando // Desabilita o TextField quando estiver editando
         )
 
         Button(
             onClick = {
-                if (novaTarefaTexto.isNotBlank()) {
+                if (!editando && novaTarefaTexto.isNotBlank()) { // Verifica se não está editando e se há texto na nova tarefa
                     tarefas = tarefas.toMutableList().apply {
                         add(Tarefa(novaTarefaTexto))
                     }
                     novaTarefaTexto = ""
                 }
             },
-            modifier = Modifier.padding(16.dp)
+            modifier = Modifier.padding(16.dp),
+            enabled = !editando // Desabilita o botão "Nova Tarefa" quando estiver editando
         ) {
             Text("Adicionar Tarefa")
         }
