@@ -3,18 +3,15 @@ package com.example.checklist
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -44,6 +41,8 @@ class MainActivity : ComponentActivity() {
 
 data class Tarefa(val texto: String, var concluida: Boolean = false)
 
+
+
 @Composable
 fun Checklist(
     tarefas: List<Tarefa>,
@@ -51,12 +50,10 @@ fun Checklist(
     onTarefaExcluir: (Int) -> Unit,
     onTarefaEditar: (Int, String) -> Unit
 ) {
-    // Substituído Column por LazyColumn para renderização eficiente
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(vertical = 8.dp)
     ) {
-        // Usando items para iterar sobre a lista de tarefas
         items(tarefas.size) { index ->
             val tarefa = tarefas[index]
             var editandoTarefaIndex by remember { mutableStateOf(-1) }
@@ -90,16 +87,25 @@ fun Checklist(
                     }
                 } else {
                     Text(text = tarefa.texto, modifier = Modifier.weight(1f))
-                    Button(
-                        onClick = { editandoTarefaIndex = index }
+                    // Substitua o botão "Editar" pelo IconButton com o ícone de edição
+                    IconButton(
+                        onClick = { editandoTarefaIndex = index },
+                        enabled = editandoTarefaIndex == -1
                     ) {
-                        Text("Editar")
+                        Icon(
+                            imageVector = Icons.Filled.Edit, // Use o ícone de edição
+                            contentDescription = "Editar"
+                        )
                     }
-                    Button(
+                    // Substituindo o botão "Excluir" por um IconButton com o ícone de lixeira
+                    IconButton(
                         onClick = { onTarefaExcluir(index) },
                         enabled = editandoTarefaIndex == -1
                     ) {
-                        Text("Excluir")
+                        Icon(
+                            imageVector = Icons.Filled.Delete,
+                            contentDescription = "Excluir"
+                        )
                     }
                 }
             }
